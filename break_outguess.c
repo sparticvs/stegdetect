@@ -42,7 +42,7 @@
 #include <arpa/inet.h>
 
 #include <jpeglib.h>
-#include <file.h>
+#include <magic.h>
 
 #include "config.h"
 #include "common.h"
@@ -74,6 +74,8 @@ int break_outguess(struct ogobj *, struct arc4_stream *, iterator *,
 /* Globals */
 int min_len = 256;
 int max_seed = 55000;
+
+extern magic_t ms_cookie;
 
 void
 iterator_init(iterator *iter, struct arc4_stream *as)
@@ -260,7 +262,7 @@ crack_outguess(char *filename, char *word, void *obj)
 		fprintf(stdout, "%s : outguess[v0.13b](%s)[",
 			filename, word);
 		noprint = 0;
-		file_process(buf, buflen);
+        fprintf(stdout, "%s", magic_buffer(ms_cookie, buf, buflen));
 		noprint = 1;
 		fprintf(stdout, "][");
 		for (i = 0; i < 16; i++)
@@ -314,7 +316,7 @@ break_outguess(struct ogobj *og, struct arc4_stream *as, iterator *it,
 	for (i = 0; i < n; i++)
 		buf[i] ^= arc4_getbyte(&tas);
 
-	if (file_process(buf, n) == 0)
+	if (magic_buffer(ms_cookie, buf, n) == 0)
 		return (0);
 
 	*pbuf = buf;

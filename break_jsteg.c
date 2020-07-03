@@ -42,7 +42,7 @@
 #include <arpa/inet.h>
 
 #include <jpeglib.h>
-#include <file.h>
+#include <magic.h>
 
 #include "config.h"
 #include "common.h"
@@ -56,6 +56,8 @@
 #define JSTEGBYTES	8
 #define JSTEGHEADER	64
 
+extern magic_t ms_cookie;
+
 struct jstegobj {
 	int skip;
 	u_int8_t coeff[JSTEGBYTES];
@@ -68,12 +70,13 @@ int break_jsteg_filetest(char *filename, struct jstegobj *obj)
 {
 	extern int noprint;
 
-	if (file_process(obj->header, sizeof(obj->header)) == 0)
+    const char *magic_str = magic_buffer(ms_cookie, obj->header, sizeof(obj->header));
+	if (NULL == magic_str)
 		return (0);
 
 	fprintf(stdout, "%s : jsteg[", filename);
 	noprint = 0;
-	file_process(obj->header, sizeof(obj->header));
+    fprintf(stdout, "%s", magic_str);
 	noprint = 1;
 	fprintf(stdout, "]\n");
 
@@ -237,12 +240,13 @@ crack_jsteg(char *filename, char *word, void *obj)
 		tas = as;
 		for (i = 0; i < JSTEGHEADER; i++)
 			header[i] = jstegob->header[i] ^ arc4_getbyte(&tas);
-		if (file_process(header, JSTEGHEADER) == 0)
+        const char *magic_str = magic_buffer(ms_cookie, header, JSTEGHEADER);
+		if (NULL == magic_str)
 			goto out;
 
 		fprintf(stdout, "[");
 		noprint = 0;
-		file_process(header, JSTEGHEADER);
+        fprintf(stdout, "%s", magic_str);
 		noprint = 1;
 		fprintf(stdout, "]");
 

@@ -42,7 +42,7 @@
 #include <dirent.h>
 
 #include <jpeglib.h>
-#include <file.h>
+#include <magic.h>
 
 #include "config.h"
 #include "common.h"
@@ -76,6 +76,8 @@ u_int32_t count, total_count;
 int found = 0;
 struct timeval last_tv;
 time_t starttime;
+
+magic_t ms_cookie = NULL;
 
 void
 status_print(char *word)
@@ -524,10 +526,15 @@ main(int argc, char *argv[])
 	}
 
 	/* Set up magic rules */
-	if (file_init())
-		errx(1, "file magic initializiation failed");
+    ms_cookie = magic_open(MAGIC_NONE);
+    if(NULL == ms_cookie) {
+        errx(1, "file magic initialization failed");
+    }
+    if(-1 == magic_load(ms_cookie, NULL)) {
+        errx(1, "file magic db load failed");
+    }
 
-        if (!convert) {
+    if (!convert) {
 		cfg_init(rules_name);
 		db_init();
 	}
