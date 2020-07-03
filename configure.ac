@@ -30,6 +30,56 @@ i386-*-*)
  BFOBJ=bf_enc.o;;
 esac
 
+# Autoheader Config Contents
+AH_TEMPLATE([_PATH_RULES],
+            [Define to the path where the rules.ini file can be found])
+AH_TEMPLATE([u_int64_t],
+            [Define to `unsigned long long' if <sys/types.h> doesn't define.])
+AH_TEMPLATE([u_int32_t],
+            [Define to `unsigned int' if <sys/types.h> doesn't define.])
+AH_TEMPLATE([u_int16_t],
+            [Define to `unsigned short' if <sys/types.h> doesn't define])
+AH_TEMPLATE([u_int8_t],
+            [Define to `unsigned char' if <sys/types.h> doesn't define])
+AH_VERBATIM([HAVE_TIMERADD], [
+#ifndef HAVE_TIMERADD
+#define timeradd(tvp, uvp, vvp)                                         \
+        do {                                                            \
+                (vvp)->tv_sec = (tvp)->tv_sec + (uvp)->tv_sec;          \
+                (vvp)->tv_usec = (tvp)->tv_usec + (uvp)->tv_usec;       \
+                if ((vvp)->tv_usec >= 1000000) {                        \
+                        (vvp)->tv_sec++;                                \
+                        (vvp)->tv_usec -= 1000000;                      \
+                }                                                       \
+        } while (0)
+#define	timersub(tvp, uvp, vvp)						\
+	do {								\
+		(vvp)->tv_sec = (tvp)->tv_sec - (uvp)->tv_sec;		\
+		(vvp)->tv_usec = (tvp)->tv_usec - (uvp)->tv_usec;	\
+		if ((vvp)->tv_usec < 0) {				\
+			(vvp)->tv_sec--;				\
+			(vvp)->tv_usec += 1000000;			\
+		}							\
+	} while (0)
+    ])
+
+# Autoheader Bottom Config Contents
+AH_BOTTOM([
+/* Prototypes for missing functions */
+#ifndef HAVE_STRLCAT
+size_t	 strlcat(char *, const char *, size_t);
+#endif
+
+#ifndef HAVE_STRLCPY
+size_t	 strlcpy(char *, const char *, size_t);
+#endif
+
+#ifndef HAVE_BASENAME
+char	*basename(const char *);
+char	*dirname(const char *);
+#endif
+])
+
 dnl Checking for gtk
 AC_PATH_PROG(PATH_GTKCONFIG, gtk-config)
 if test ! -z "$PATH_GTKCONFIG" ; then

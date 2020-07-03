@@ -21,7 +21,7 @@ SUBDIRS		= jpeg-6b file
 
 man_MANS = stegdetect.1 stegbreak.1
 
-EXTRA_DIST = $(man_MANS) acconfig.h jpeg-6b bf_locl.h bf_pi.h blowfish.h \
+EXTRA_DIST = $(man_MANS) jpeg-6b bf_locl.h bf_pi.h blowfish.h \
 	compat/err.h compat/md5.h compat/sys/queue.h
 
 #CFLAGS	= @CFLAGS@ -Wall -g
